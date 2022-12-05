@@ -1,1 +1,1 @@
-                                                        This is the FrontEnd of the Grainsens project
+This is the FrontEnd of the Grainsens project
