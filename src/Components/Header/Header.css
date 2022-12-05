@@ -38,3 +38,24 @@
 
   color: rgba(0, 0, 0, 0.59);
 }
+.header {
+  background: #ffffff;
+}
+.storage-name {
+  position: absolute;
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14.355px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #9cb96f;
+  border-radius: 13.5px;
+  color: #eff3f6;
+  margin-left: 37px;
+  margin-top: 32px;
+  width: 138px;
+  height: 31px;
+}

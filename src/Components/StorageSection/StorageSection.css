@@ -21,6 +21,7 @@
   color: #1a1a1a;
 }
 .storagesection {
+  background: #ffffff;
   width: 1200px;
   margin: auto;
 }
@@ -45,6 +46,8 @@
   margin-bottom: 2px;
 }
 .storage {
+  border-radius: 52px;
+  margin-top: 31px;
   height: 306px;
   width: 213px;
   background-color: #7a9947;
@@ -55,5 +58,32 @@
   width: 213px;
   background-color: #7a9947;
   border: 9px solid #1c6ea4;
-  border-radius: 52px;
+}
+.bottom-side {
+  bottom: 0;
+  width: 100%;
+  color: #ffffff;
+  margin-top: 193px;
+}
+.storage-photo {
+  position: absolute;
+  padding-left: 42px;
+  padding-top: 101px;
+}
+.dangerous_icon {
+  position: absolute;
+  border-radius: 50%;
+  margin-left: 178px;
+  height: 38px;
+  width: 38px;
+  background-color: rgb(255, 255, 255);
+}
+.notification {
+  position: absolute;
+  margin-left: 87.5px;
+  margin-top: 240px;
+  background-color: rgb(255, 255, 255);
+  border-radius: 50%;
+  height: 38px;
+  width: 38px;
 }
