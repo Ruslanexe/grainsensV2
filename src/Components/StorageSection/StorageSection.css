@@ -1,0 +1,59 @@
+.username {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 26px;
+  display: flex;
+  align-items: center;
+
+  color: #525252;
+}
+.yourstorages {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 800;
+  font-size: 46px;
+  line-height: 63px;
+  display: flex;
+  align-items: center;
+  margin-top: 0px;
+  color: #1a1a1a;
+}
+.storagesection {
+  width: 1200px;
+  margin: auto;
+}
+.storage-section-text {
+  flex-direction: column;
+  display: flex;
+  width: 421.16px;
+  height: 95px;
+}
+
+.username-hi {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 26px;
+  display: flex;
+  align-items: center;
+
+  color: #525252;
+  margin-top: 23px;
+  margin-bottom: 2px;
+}
+.storage {
+  height: 306px;
+  width: 213px;
+  background-color: #7a9947;
+  border-radius: 9px solid 52px;
+}
+#borderDemo {
+  height: 306px;
+  width: 213px;
+  background-color: #7a9947;
+  border: 9px solid #1c6ea4;
+  border-radius: 52px;
+}
