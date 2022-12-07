@@ -87,3 +87,21 @@
   height: 38px;
   width: 38px;
 }
+.storages {
+  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 40vh;
+}
+.storage-add {
+  border: 9px solid #93b864;
+  background: #f1ffdf;
+  border-radius: 52px;
+  margin-top: 31px;
+  height: 288px;
+  width: 195px;
+}
+.plus {
+  margin-left: 60px;
+  margin-top: 115px;
+}
