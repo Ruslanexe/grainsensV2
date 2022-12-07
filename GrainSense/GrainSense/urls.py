@@ -13,5 +13,8 @@ urlpatterns = [
     path('post_storage/', views.StorageView.as_view(), name='post_storage'),
     path('post_gateway/', views.GatewayView.as_view(), name='post_gateway'),
     path('post_stick/', views.StickView.as_view(), name='post_stick'),
-    path('get_storage_by_owner/<int:owner_id>', views.StorageView.as_view(), name='get_storage_by_owner'),
+    path('get_storage_by_owner/', views.StorageView.as_view(), name='get_storage_by_owner'),
+    path('get_entries/<int:storage_id>/<str:start>/<str:finish>', views.EntryView.as_view(), name='get_entries'),
+    path('get_entries/<int:storage_id>', views.EntryView.as_view(), name='get_entries'),
+    path('get_sticks_by_gateway/<int:gateway_id>', views.StickView.as_view(), name='get_sticks'),
 ]
