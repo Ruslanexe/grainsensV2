@@ -34,29 +34,17 @@ export function StorageSection() {
             alt="storagebottom....."
           />
         </div>
-        <div className="storage">
-          <img
-            className="notification"
-            src={notification}
-            alt="notification...."
-          />
-          <p className="storage-name">Illya</p>
-          <img
-            className="dangerous_icon"
-            src={dangerous_icon}
-            alt="dangerous_icon...."
-          />
-          <div className="storage-photo">
-            <img src={house} alt="house...." />
-          </div>
-          <img
-            className="bottom-side"
-            src={storagebottom}
-            alt="storagebottom....."
-          />
-        </div>
+
         <div className="storage-add">
           <img className="plus" src={plus} />
+        </div>
+        <div className="instruction">
+          <p>
+            Є питання як користуватись? Відвідайте нашу сторінку з{" "}
+            <a className="nub" href="https://www.w3schools.com/">
+              <span className="someSpan"> інструкцією</span>
+            </a>
+          </p>
         </div>
       </div>
     </div>

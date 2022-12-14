@@ -90,8 +90,8 @@
 .storages {
   display: flex;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 40vh;
+  grid-auto-flow: column;
+  grid-column-gap: 83px;
 }
 .storage-add {
   border: 9px solid #93b864;
@@ -104,4 +104,29 @@
 .plus {
   margin-left: 60px;
   margin-top: 115px;
+}
+.instruction {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 160%;
+  /* or 51px */
+  width: 502px;
+  height: 153px;
+  margin-left: 120px;
+  margin-top: 31px;
+  display: flex;
+  align-items: center;
+
+  color: #000000;
+
+  mix-blend-mode: normal;
+}
+.someSpan {
+  text-decoration: wavy;
+  color: #93b864;
+}
+.nub {
+  text-decoration: none;
 }

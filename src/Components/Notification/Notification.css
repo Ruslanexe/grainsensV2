@@ -1,0 +1,35 @@
+.notification-section {
+  width: 1300px;
+  margin: auto;
+  height: 704px;
+}
+.text-top {
+  display: flex;
+  width: 740px;
+  justify-content: space-between;
+}
+.history {
+  ont-family: "Open Sans";
+  font-style: normal;
+  font-weight: 800;
+  font-size: 36px;
+  line-height: 49px;
+  /* identical to box height */
+
+  color: #1a1a1a;
+}
+.first-storage {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 35px;
+  text-align: center;
+  background: #97c849;
+  border-radius: 36px;
+  padding: 4px 10px 4px 20px;
+  gap: 14px;
+  color: #ffffff;
+  width: 232px;
+  height: 43px;
+}
