@@ -43,8 +43,8 @@ class OwnerView(View):
                 return JsonResponse(OwnerSerializer(Owner.objects.get(id=id)).data, safe=False)
             except:
                 return JsonResponse({'message': f"Owner with id={id} doesn't exist"}, status=404)
-        # object = Owner.objects.get(email=request[''])
-        # return JsonResponse(OwnerSerializer(object).data, safe=False)
+        object = Owner.objects.all()
+        return JsonResponse(OwnerSerializer(object, many=True).data, safe=False)
 
 
 class SeedTypesView(View):
@@ -82,10 +82,10 @@ class SeedTypesView(View):
     @staticmethod
     def get(request, id=None):
         objects = SeedTypes.objects.all()
-        if id:
+        if id is not None:
             objects = objects.filter(id=id)
         serial = SeedTypesSerializer(objects, many=True)
-        return JsonResponse(serial.data)
+        return JsonResponse(serial.data, safe=False)
 
 
 class StorageView(View):
@@ -102,17 +102,14 @@ class StorageView(View):
         return JsonResponse({'message': "Storage created successfully"}, status=201)
 
     @staticmethod
-    def get(request):
-        if request.user.is_anonymous:
-            return JsonResponse({'message': 'authentication missing'}, status=401)
-        user = request.user
-        pwd = user.password + user.email
-        owner = Owner.objects.get(email=user.email, password=hashlib.md5(pwd.encode()))
-        print(owner)
-        objects = Storage.objects.all()
-        objects = objects.filter(owner_id=owner.id)
-        serial = StorageSerializer(objects, many=True)
-        return JsonResponse(serial.data, safe=False)
+    def get(request, owner_id=None):
+        if owner_id is not None:
+            objects = Storage.objects.all()
+            objects = objects.filter(owner_id=owner_id)
+            serial = StorageSerializer(objects, many=True)
+            return JsonResponse(serial.data, safe=False)
+        else:
+            return JsonResponse({"message": "No owner specified"}, status = 404)
 
 
 class GatewayView(View):
