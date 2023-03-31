@@ -37,14 +37,17 @@ class OwnerView(View):
         return JsonResponse({'message': f"Owner {args['last_name']} created successfully"})
 
     @staticmethod
-    def get(request, id=None):
-        if id is not None:
-            try:
-                return JsonResponse(OwnerSerializer(Owner.objects.get(id=id)).data, safe=False)
-            except:
-                return JsonResponse({'message': f"Owner with id={id} doesn't exist"}, status=404)
-        object = Owner.objects.all()
-        return JsonResponse(OwnerSerializer(object, many=True).data, safe=False)
+    def get(request):
+        id = -1
+        try:
+            id = request.GET['owner_id']
+        except:
+            object = Owner.objects.all()
+            return JsonResponse(OwnerSerializer(object, many=True).data, safe=False)
+        try:
+            return JsonResponse(OwnerSerializer(Owner.objects.get(id=id)).data, safe=False)
+        except:
+            return JsonResponse({'message': f"Owner with id={id} doesn't exist"}, status=404)
 
 
 class SeedTypesView(View):
@@ -80,12 +83,14 @@ class SeedTypesView(View):
             return JsonResponse({'message': f"Seed type with id={id} doesn't exist"}, status=404)
 
     @staticmethod
-    def get(request, id=None):
+    def get(request):
         objects = SeedTypes.objects.all()
-        if id is not None:
+        try:
+            id = request.GET['seed_type_id']
             objects = objects.filter(id=id)
-        serial = SeedTypesSerializer(objects, many=True)
-        return JsonResponse(serial.data, safe=False)
+        finally:
+            serial = SeedTypesSerializer(objects, many=True)
+            return JsonResponse(serial.data, safe=False)
 
 
 class StorageView(View):
@@ -102,13 +107,15 @@ class StorageView(View):
         return JsonResponse({'message': "Storage created successfully"}, status=201)
 
     @staticmethod
-    def get(request, owner_id=None):
-        if owner_id is not None:
+    def get(request):
+        params = request.GET
+        try:
+            owner_id = params['owner_id']
             objects = Storage.objects.all()
             objects = objects.filter(owner_id=owner_id)
             serial = StorageSerializer(objects, many=True)
             return JsonResponse(serial.data, safe=False)
-        else:
+        except:
             return JsonResponse({"message": "No owner specified"}, status = 404)
 
 
@@ -140,25 +147,44 @@ class StickView(View):
         return JsonResponse({'message': "Stick created successfully"}, status=201)
 
     @staticmethod
-    def get(request, gateway_id):
-        return JsonResponse(StickSerializer(Stick.objects.filter(gateway_id=gateway_id), many=True).data, safe=False)
+    def get(request):
+        sticks = Stick.objects.all()
+        try:
+            id = request.GET['gateway_id']
+            sticks = sticks.filter(gateway_id=id)
+        finally:
+            return JsonResponse(StickSerializer(sticks, many=True).data, safe=False)
 
 
 class EntryView(View):
     http_method_names = ['post', 'get']
 
     @staticmethod
-    def get(request, storage_id=None, start=None, finish=None):
-        sticks = Stick.objects.filter(storage_id=storage_id)
+    def get(request):
+        params = request.GET
+        sticks = Stick.objects.all()
+        try:
+            storage_id = params['storage_id']
+            sticks = Stick.objects.filter(storage_id=storage_id)
+        except:
+            return JsonResponse({'message': "No storage specified"}, status=404)
         response = []
-        for stick in sticks:
-            objects = Entry.objects.filter(stick_id=stick.id)
-            for entry in objects:
-                if start is None or pytz.utc.localize(datetime.datetime.strptime(start, DATETIME_FORMAT))\
-                        <= entry.time <=\
-                        pytz.utc.localize(datetime.datetime.strptime(finish, DATETIME_FORMAT)):
-                    response.append(entry)
-        return JsonResponse(EntrySerializer(response, many=True).data, safe=False)
+        start = None
+        try:
+            start = params['start']
+        finally:
+            finish = None
+            try:
+                finish = params['finish']
+            finally:
+                for stick in sticks:
+                    objects = Entry.objects.filter(stick_id=stick.id)
+                    for entry in objects:
+                        if start is None or pytz.utc.localize(datetime.datetime.strptime(start, DATETIME_FORMAT))\
+                                <= entry.time <=\
+                                pytz.utc.localize(datetime.datetime.strptime(finish, DATETIME_FORMAT)):
+                            response.append(entry)
+                return JsonResponse(EntrySerializer(response, many=True).data, safe=False)
 
     @staticmethod
     def post(request):
