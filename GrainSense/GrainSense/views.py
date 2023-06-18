@@ -5,21 +5,37 @@ import pytz
 from GrainSense.models import Gateway, Owner, SeedTypes, Storage, Stick, Entry
 from django.http import JsonResponse
 from django.views.generic import View
+from GrainSense.my_token import *
 
 from django.contrib.auth.models import AnonymousUser as Anonymous
 
-from GrainSense.serializers import StorageSerializer, SeedTypesSerializer, OwnerSerializer, EntrySerializer, StickSerializer
+from GrainSense.serializers import StorageSerializer, SeedTypesSerializer, OwnerSerializer, EntrySerializer, StickSerializer, TokenSerializer
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
-def auth_decorator(func):
-    def wrapper(request, *args, **kwargs):
-        kwargs['error'] = False
-        if request.user == Anonymous:
-            kwargs['error'] = True
-        func(request, *args, **kwargs)
-    return wrapper
+def str_to_datetime(date_string):
+    a = datetime.datetime.strptime(date_string, DATETIME_FORMAT)
+    return a
+
+
+def hashed_password(email, password):
+    password_with_salt = password + email
+    return hashlib.md5(password_with_salt.encode()).hexdigest()
+
+
+class LoginView(View):
+    http_method_names = ['post']
+
+    @staticmethod
+    def post(request):
+        args = request.POST
+        owner = Owner.objects.filter(email=args['email'], password=hashed_password(args['email'], args['password']))
+        if len(owner) == 0:
+            return JsonResponse({'message': 'wrong email/password'}, status=403)
+        token = AccessToken(owner[0].id)
+        token.validate()
+        return JsonResponse(str(token), safe=False, status=200)
 
 
 class OwnerView(View):
@@ -31,20 +47,27 @@ class OwnerView(View):
         owner = Owner.objects.filter(email=args['email'])
         if len(owner) > 0:
             return JsonResponse({'message': 'owner with such email already exists!'}, status=403)
-        password_with_salt = args['password'] + args['email']
-        owner = Owner(username=args['username'], password=hashlib.md5(password_with_salt.encode()).hexdigest(), first_name=args['first_name'], last_name=args['last_name'], email=args['email'])
+
+        owner = Owner(username=args['username'], password=hashed_password(args['email'], args['password']), first_name=args['first_name'], last_name=args['last_name'], email=args['email'])
         owner.save()
         return JsonResponse({'message': f"Owner {args['last_name']} created successfully"})
 
     @staticmethod
     def get(request):
-        id = -1
+        remove_old_tokens()
         try:
             id = request.GET['owner_id']
         except:
-            object = Owner.objects.all()
-            return JsonResponse(OwnerSerializer(object, many=True).data, safe=False)
+            return JsonResponse({'message': 'No owner id specified'}, status=404)
         try:
+            token_value = request.META['HTTP_TOKEN']
+            user = int(request.META['HTTP_USER'])
+            expires = str_to_datetime(request.META['HTTP_EXPIRES'])
+            token = AccessToken(user, token_value, expires)
+            if not (token in active_tokens):
+                return JsonResponse({'message': 'Token expired'}, status=304)
+            if user != int(id):
+                return JsonResponse({'message': 'Permission denied'}, status=304)
             return JsonResponse(OwnerSerializer(Owner.objects.get(id=id)).data, safe=False)
         except:
             return JsonResponse({'message': f"Owner with id={id} doesn't exist"}, status=404)

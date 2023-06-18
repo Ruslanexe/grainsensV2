@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from GrainSense.models import Storage, Entry, Gateway, Stick, SeedTypes, Owner
+from GrainSense.my_token import AccessToken
 
 
 class StorageSerializer(serializers.ModelSerializer):
@@ -37,3 +38,9 @@ class OwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Owner
         fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name')
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccessToken
+        fields = ('user', 'value', 'expires')
