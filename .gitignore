@@ -23,3 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 
 GrainSense/mysite/dataPackage
+*.pyc
+GrainSense/playground.py

@@ -7,9 +7,7 @@ from django.http import JsonResponse
 from django.views.generic import View
 from GrainSense.my_token import *
 
-from django.contrib.auth.models import AnonymousUser as Anonymous
-
-from GrainSense.serializers import StorageSerializer, SeedTypesSerializer, OwnerSerializer, EntrySerializer, StickSerializer, TokenSerializer
+from GrainSense.serializers import StorageSerializer, SeedTypesSerializer, OwnerSerializer, EntrySerializer, StickSerializer, GatewaySerializer
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -29,12 +27,14 @@ class LoginView(View):
 
     @staticmethod
     def post(request):
+        remove_old_tokens()
         args = request.POST
         owner = Owner.objects.filter(email=args['email'], password=hashed_password(args['email'], args['password']))
         if len(owner) == 0:
             return JsonResponse({'message': 'wrong email/password'}, status=403)
         token = AccessToken(owner[0].id)
         token.validate()
+        print(active_tokens)
         return JsonResponse(str(token), safe=False, status=200)
 
 
@@ -43,6 +43,7 @@ class OwnerView(View):
 
     @staticmethod
     def post(request):
+        remove_old_tokens()
         args = request.POST
         owner = Owner.objects.filter(email=args['email'])
         if len(owner) > 0:
@@ -121,9 +122,18 @@ class StorageView(View):
 
     @staticmethod
     def post(request):
+        remove_old_tokens()
         args = request.POST
         storage = Storage(address=args['address'], owner_id=args['owner_id'], seed_types_id=args['seed_types_id'])
         try:
+            token_value = request.META['HTTP_TOKEN']
+            user = int(request.META['HTTP_USER'])
+            expires = str_to_datetime(request.META['HTTP_EXPIRES'])
+            token = AccessToken(user, token_value, expires)
+            if not (token in active_tokens):
+                return JsonResponse({'message': 'Token expired'}, status=304)
+            if user != int(args['owner_id']):
+                return JsonResponse({'message': 'Permission denied'}, status=304)
             storage.save()
         except:
             return JsonResponse({'message': "No such owner or seed type exists"}, status=404)
@@ -131,15 +141,24 @@ class StorageView(View):
 
     @staticmethod
     def get(request):
+        remove_old_tokens()
         params = request.GET
         try:
             owner_id = params['owner_id']
+            token_value = request.META['HTTP_TOKEN']
+            user = int(request.META['HTTP_USER'])
+            expires = str_to_datetime(request.META['HTTP_EXPIRES'])
+            token = AccessToken(user, token_value, expires)
+            if not (token in active_tokens):
+                return JsonResponse({'message': 'Token expired'}, status=304)
+            if user != int(owner_id):
+                return JsonResponse({'message': 'Permission denied'}, status=304)
             objects = Storage.objects.all()
             objects = objects.filter(owner_id=owner_id)
             serial = StorageSerializer(objects, many=True)
             return JsonResponse(serial.data, safe=False)
         except:
-            return JsonResponse({"message": "No owner specified"}, status = 404)
+            return JsonResponse({"message": "No owner specified"}, status=404)
 
 
 class GatewayView(View):
@@ -147,13 +166,47 @@ class GatewayView(View):
 
     @staticmethod
     def post(request):
+        remove_old_tokens()
         args = request.POST
         gateway = Gateway(owner_id=args['owner_id'])
         try:
+            token_value = request.META['HTTP_TOKEN']
+            user = int(request.META['HTTP_USER'])
+            expires = str_to_datetime(request.META['HTTP_EXPIRES'])
+            token = AccessToken(user, token_value, expires)
+            if not (token in active_tokens):
+                return JsonResponse({'message': 'Token expired'}, status=304)
+            if user != int(args['owner_id']):
+                return JsonResponse({'message': 'Permission denied'}, status=304)
             gateway.save()
         except:
             return JsonResponse({'message': "No such owner exists"}, status=404)
         return JsonResponse({'message': "Gateway created successfully"}, status=201)
+
+    @staticmethod
+    def get(request):
+        remove_old_tokens()
+        args = request.GET
+        try:
+            gateway_id = args['gateway_id']
+            gateway = Gateway.objects.get(id=gateway_id)
+            print(gateway.owner_id)
+            token_value = request.META['HTTP_TOKEN']
+            user = int(request.META['HTTP_USER'])
+            expires = str_to_datetime(request.META['HTTP_EXPIRES'])
+            token = AccessToken(user, token_value, expires)
+            if not (token in active_tokens):
+                print('token error')
+                return JsonResponse({'message': 'Token expired'}, status=304)
+            if user != int(gateway.owner_id):
+                print('invalid owner of gateway')
+                return JsonResponse({'message': 'Permission denied'}, status=304)
+            serial = GatewaySerializer(gateway)
+            data = serial.data
+            print("Aboba")
+            return JsonResponse(data, safe=False)
+        except:
+            return JsonResponse({'message': "Invalid gateway id"}, status=404)
 
 
 class StickView(View):
@@ -161,9 +214,25 @@ class StickView(View):
 
     @staticmethod
     def post(request):
+        remove_old_tokens()
         args = request.POST
         stick = Stick(gateway_id=args['gateway_id'], storage_id=args['storage_id'])
         try:
+            token_value = request.META['HTTP_TOKEN']
+            user = int(request.META['HTTP_USER'])
+            expires = str_to_datetime(request.META['HTTP_EXPIRES'])
+            token = AccessToken(user, token_value, expires)
+            if not (token in active_tokens):
+                print('token error')
+                return JsonResponse({'message': 'Token expired'}, status=304)
+            storage = Storage.objects.get(id=args['storage_id'])
+            if user != int(storage.owner_id):
+                print('invalid owner of storage')
+                return JsonResponse({'message': 'Permission denied'}, status=304)
+            gateway = Gateway.objects.get(id=args['gateway_id'])
+            if user != int(gateway.owner_id):
+                print('invalid owner of gateway')
+                return JsonResponse({'message': 'Permission denied'}, status=304)
             stick.save()
         except:
             return JsonResponse({'message': "No such storage or gateway exists"}, status=404)
@@ -171,19 +240,32 @@ class StickView(View):
 
     @staticmethod
     def get(request):
+        remove_old_tokens()
         sticks = Stick.objects.all()
         try:
             id = request.GET['gateway_id']
+            token_value = request.META['HTTP_TOKEN']
+            user = int(request.META['HTTP_USER'])
+            expires = str_to_datetime(request.META['HTTP_EXPIRES'])
+            token = AccessToken(user, token_value, expires)
+            if not (token in active_tokens):
+                print('token error')
+                return JsonResponse({'message': 'Token expired'}, status=304)
+            gateway = Gateway.objects.get(id=id)
+            if user != int(gateway.owner_id):
+                print('invalid owner of gateway')
+                return JsonResponse({'message': 'Permission denied'}, status=304)
             sticks = sticks.filter(gateway_id=id)
-        finally:
             return JsonResponse(StickSerializer(sticks, many=True).data, safe=False)
-
+        except:
+            return JsonResponse({'message': "Error"}, status=404)
 
 class EntryView(View):
     http_method_names = ['post', 'get']
 
     @staticmethod
     def get(request):
+        remove_old_tokens()
         params = request.GET
         sticks = Stick.objects.all()
         try:
@@ -191,6 +273,17 @@ class EntryView(View):
             sticks = Stick.objects.filter(storage_id=storage_id)
         except:
             return JsonResponse({'message': "No storage specified"}, status=404)
+        token_value = request.META['HTTP_TOKEN']
+        user = int(request.META['HTTP_USER'])
+        expires = str_to_datetime(request.META['HTTP_EXPIRES'])
+        token = AccessToken(user, token_value, expires)
+        if not (token in active_tokens):
+            print('token error')
+            return JsonResponse({'message': 'Token expired'}, status=304)
+        storage = Storage.objects.get(id=storage_id)
+        if user != int(storage.owner_id):
+            print('invalid owner of storage')
+            return JsonResponse({'message': 'Permission denied'}, status=304)
         response = []
         start = None
         try:
@@ -211,8 +304,22 @@ class EntryView(View):
 
     @staticmethod
     def post(request):
+        remove_old_tokens()
         args = request.POST
         try:
+            token_value = request.META['HTTP_TOKEN']
+            user = int(request.META['HTTP_USER'])
+            expires = str_to_datetime(request.META['HTTP_EXPIRES'])
+            token = AccessToken(user, token_value, expires)
+            if not (token in active_tokens):
+                print('token error')
+                return JsonResponse({'message': 'Token expired'}, status=304)
+            storage_id = Stick.objects.get(id=args['stick_id']).storage_id
+            storage = Storage.objects.get(id=storage_id)
+            if user != int(storage.owner_id):
+                print('invalid owner of storage')
+                return JsonResponse({'message': 'Permission denied'}, status=304)
+
             entry = Entry(send_id=args['send_id'], temp=args['temp'], height_level=args['height_level'], stick_id=args['stick_id'], time=args['time'])
             entry.save()
             return JsonResponse({'message': 'Entry was created successfully'}, status=201)

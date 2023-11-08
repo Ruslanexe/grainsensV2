@@ -29,8 +29,6 @@ class AccessToken:
             self.expires = expiration_time(datetime.datetime.now().replace(microsecond=0))
 
         self.user = user_id
-        # self.expires = datetime.datetime.strptime('2023-06-18 02:15:10', '%Y-%m-%d %H:%M:%S')
-        # self.value = "dIVfbkHXjfxBuBRL"
 
     def __eq__(self, other):
         return self.value == other.value and self.expires == other.expires and self.user == other.user

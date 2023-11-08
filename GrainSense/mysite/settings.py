@@ -76,15 +76,15 @@ from .dataPackage.data import DB_PASSWORD, DB_NAME, DB_USERNAME
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'sql_server.pyodbc',
         'NAME': DB_NAME,
         'USER': DB_USERNAME,
         'PASSWORD': DB_PASSWORD,
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'HOST': 'lab1-test-02.database.windows.net',
+        'PORT': '1433',
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+            'driver': 'ODBC Driver 17 for SQL Server',
+        },
     }
 }
 
