@@ -67,12 +67,12 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mysite.wsgi.application'
+WSGI_APPLICATION = 'GrainSense.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-from .dataPackage.data import DB_PASSWORD, DB_NAME, DB_USERNAME
+from GrainSense.dataPackage.data import DB_PASSWORD, DB_NAME, DB_USERNAME
 
 DATABASES = {
     'default': {
