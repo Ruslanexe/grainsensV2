@@ -1,0 +1,6 @@
+DB_PASSWORD = 'Database_password-1209'
+DB_USERNAME = 'Bob'
+DB_NAME     = 'GrainSenseDB'
+SECRET_KEY  = 'django-insecure-trh17td8zej8jd6g*paiy&4#8bgmyxh6&2f)dc816ys9a6om@$'
+HOST_NAME   = 'lab01-test-03.mysql.database.azure.com'
+PORT_NUM    = '3306'
