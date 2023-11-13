@@ -2,7 +2,6 @@ from . import views
 
 from django.urls import re_path, path, include
 
-from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -13,7 +12,7 @@ schema_view = get_schema_view(
         description="Welcome v glaz or v jopu raz",
     ),
     public=True,
-    permission_classes=(permissions.AllowAny,),
+    permission_classes=[]
 )
 
 urlpatterns = [
